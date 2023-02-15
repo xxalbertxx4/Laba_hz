@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Emgu.Util;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
+using System.IO;
 
 namespace Test_lab
 {
@@ -13,16 +14,34 @@ namespace Test_lab
             String win1 = "Test Window (Press any key to close)"; //The name of the window
             CvInvoke.NamedWindow(win1); //Create the window using the specific name
             Mat frame = new Mat();
+            //Mat crope = new Mat();
             VideoCapture capture = new VideoCapture();
-            while ((CvInvoke.WaitKey(1) == -1))
+            int i = 0, k = 0, pulse = 0;
+            int a = 0, b = 0, c = 0;
+            using (StreamWriter w = new StreamWriter("test.txt"))
             {
-                capture.Read(frame);
-                CvInvoke.CvtColor(frame, frame, ColorConversion.Bgr2Gray);
-                Console.WriteLine(Average(frame));
-                CvInvoke.Imshow(win1, frame);
+                while ((CvInvoke.WaitKey(1) == -1))
+                {    
+                    capture.Read(frame);
+                    Mat crope = new Mat(frame, new Emgu.CV.Structure.Range(180, 400), new Emgu.CV.Structure.Range(300, 540));
+                    CvInvoke.CvtColor(crope, crope, ColorConversion.Bgr2Gray);
+                    //Console.WriteLine(Average(crope));
+                    CvInvoke.Imshow(win1, crope);
+                    a = b;
+                    b = c;
+                    c = Average(crope);
+                    if ((a != c) && (a == b))
+                        pulse++;
+                    i++;
+                    if (i == 30)
+                    {
+                        k = pulse * 60;
+                        pulse = 0;
+                        i = 0;
+                    }
+                }
             }
-
-            Console.WriteLine(frame.ToString());
+            Console.WriteLine(k);
         }
 
         static int Average(Mat frame)
